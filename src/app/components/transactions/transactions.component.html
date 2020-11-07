@@ -1,14 +1,25 @@
 <p>transactions works!</p>
 <ng-container *ngIf="transactionList.length > 0">
-hola
-<table class="table table-striped table-sm">
-  <tbody>
-    <tr
-      *ngFor="let item of transactionList ">
-      <td>
-        {{item.categoryCode}}
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+  <table class="table table-striped table-sm">
+    <tbody>
+      <tr *ngFor="let item of transactionList ">
+        <td style="width:5px" [ngStyle]="{'background-color': item.categoryCode }">
+        </td>
+        <td>
+          {{item.dates.valueDate  | date:'MMM dd'}}
+        </td>
+        <td class = "container ">
+          <img src="../../../assets/icons/{{ item.merchant.name.toLowerCase().split(' ').join('-') }}.png" />
+
+        </td>
+        <td>
+          {{item.merchant.name}}
+        </td>
+        <td>
+          <span *ngIf="item.transaction.creditDebitIndicator === 'CRDT'">-</span>${{item.transaction.amountCurrency.amount}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </ng-container>

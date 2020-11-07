@@ -44,8 +44,11 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.transactionService.getItems().subscribe(result => {
       this.transactionList = result;
       console.log('transacciones:', this.transactionList);
-      console.log('categ:', this.transactionList[0].categoryCode);
-      console.log();
+      const date = new Date(this.transactionList[0].dates.valueDate);
+      console.log('mes:', date.toDateString());
+      console.log('mes:', date.getMonth() + 1);
+      console.log('mes:', date.getDate());
+
     });
   }
 

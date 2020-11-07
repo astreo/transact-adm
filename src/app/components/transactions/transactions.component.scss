@@ -1,0 +1,12 @@
+.container {
+  width: 30px;
+  height: auto;
+}
+
+/* resize images */
+.container img {
+  width: 100%;
+  height: auto;
+  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+  filter: grayscale(100%);
+}
