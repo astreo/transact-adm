@@ -18,6 +18,10 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
   textFilter = new FormControl('');
 
+  isDesc = false;
+  column = 'Date';
+
+
   constructor(private transactionService: TransactionsService) { }
 
   ngOnInit(): void {
@@ -49,6 +53,51 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       console.log('mes:', date.getMonth() + 1);
       console.log('mes:', date.getDate());
 
+    });
+  }
+
+  sort(property: string): void {
+    let previous: boolean;
+    let next: boolean;
+    this.isDesc = !this.isDesc;
+    this.column = property;
+    const direction = this.isDesc ? 1 : -1;
+
+    this.transactionList.sort((a, b) => {
+      console.log('la Propieddad:', property);
+      console.log('la a:', a);
+      console.log('propiedad:', a['merchant.name']);
+
+      switch (property) {
+        case 'date':
+          console.log('fecha1', new Date(a.dates.valueDate));
+          console.log('fecha1', (a.dates.valueDate));
+          console.log('fecha2', new Date(b.dates.valueDate));
+          console.log('fecha2', (b.dates.valueDate));
+          previous = new Date(a.dates.valueDate) < new Date(b.dates.valueDate);
+          next = new Date(a.dates.valueDate) > new Date(b.dates.valueDate);
+          break;
+        case 'beneficiary':
+          previous = a.merchant.name < b.merchant.name;
+          next = a.merchant.name > b.merchant.name;
+          break;
+        case 'amount':
+          previous = +a.transaction.amountCurrency.amount < +b.transaction.amountCurrency.amount;
+          next = +a.transaction.amountCurrency.amount > +b.transaction.amountCurrency.amount;
+          break;
+        default:
+          break;
+      }
+
+      if (previous) {
+        return -1 * direction;
+      }
+      else if (next) {
+        return 1 * direction;
+      }
+      else {
+        return 0;
+      }
     });
   }
 
