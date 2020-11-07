@@ -45,7 +45,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       this.transactionList = result;
       console.log('transacciones:', this.transactionList);
       console.log('categ:', this.transactionList[0].categoryCode);
-
+      console.log();
     });
   }
 
