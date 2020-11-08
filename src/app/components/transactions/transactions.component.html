@@ -51,7 +51,8 @@
             {{item.dates.valueDate  | date:'MMM dd'}}
           </td>
           <td class="container ">
-            <img src="../../../assets/icons/{{ item.merchant.name.toLowerCase().split(' ').join('-') }}.png" />
+            <img src="../../../assets/icons/{{ item.merchant.name.toLowerCase().split(' ').join('-') }}.png"
+            onerror="this.src='../../../assets/icons/default.png';" />
 
           </td>
           <td>
