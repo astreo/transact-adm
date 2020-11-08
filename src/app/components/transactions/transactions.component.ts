@@ -16,7 +16,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   transactionList$: Observable<Item[]>;
   listSubscription = new Subscription();
 
-  textFilter = new FormControl('');
+  searchText = '';
 
   isDesc = false;
   column = 'Date';
@@ -25,6 +25,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   constructor(private transactionService: TransactionsService) { }
 
   ngOnInit(): void {
+    // this.searchText.setValue('t');
     this.getList();
   }
 
@@ -82,8 +83,10 @@ export class TransactionsComponent implements OnInit, OnDestroy {
           next = a.merchant.name > b.merchant.name;
           break;
         case 'amount':
-          previous = +a.transaction.amountCurrency.amount < +b.transaction.amountCurrency.amount;
-          next = +a.transaction.amountCurrency.amount > +b.transaction.amountCurrency.amount;
+          const signA = (a.transaction.creditDebitIndicator === 'DBIT' ? '-' : '');
+          const signB = (b.transaction.creditDebitIndicator === 'DBIT' ? '-' : '');
+          previous = +(signA + a.transaction.amountCurrency.amount) < +(signB + b.transaction.amountCurrency.amount);
+          next = +(signA + a.transaction.amountCurrency.amount) > +(signB + b.transaction.amountCurrency.amount);
           break;
         default:
           break;
