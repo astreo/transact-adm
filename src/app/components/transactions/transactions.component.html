@@ -1,34 +1,68 @@
 <p>PEACHTREE BANK</p>
 
-<ng-container *ngIf="transactionList.length > 0">
-  <div class="form-group">
-    <div class="col-md-6">
-      <input type="text" [(ngModel)]="searchText"
-             class="form-control" placeholder="Search By Category" />
-    </div>
-  </div>
-  <button  (click)="sort('date')" type="button">DATE</button>
-  <button  (click)="sort('beneficiary')" type="button">BENEFICIARY</button>
-  <button  (click)="sort('amount')" type="button">AMOUNT</button>
-  <table class="table table-striped table-sm">
-    <tbody>
-      <tr *ngFor="let item of transactionList | textFilter:searchText">
-        <td style="width:5px" [ngStyle]="{'background-color': item.categoryCode }">
-        </td>
-        <td>
-          {{item.dates.valueDate  | date:'MMM dd'}}
-        </td>
-        <td class = "container ">
-          <img src="../../../assets/icons/{{ item.merchant.name.toLowerCase().split(' ').join('-') }}.png" />
+<div>
+  <form [formGroup]='form' (keydown.enter)="$event.preventDefault()">
 
-        </td>
-        <td>
-          {{item.merchant.name}}
-        </td>
-        <td>
-          <span *ngIf="item.transaction.creditDebitIndicator === 'CRDT'">-</span>${{item.transaction.amountCurrency.amount}}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</ng-container>
+    <div class="form-group">
+      <label class="form-label">FROM ACCOUNT</label>
+      <input type="text" class="form-control" formControlName='fromAccount'>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">TO ACCOUNT</label>
+      <input type="text" class="form-control" formControlName='toAccount'
+        [ngClass]="{ 'is-invalid': isInvalid(ctrls.toAccount) }">
+      <div *ngIf="isInvalid(ctrls.toAccount)" class="invalid-feedback">
+        {{getErrorMessage(ctrls.toAccount)}}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">AMOUNT</label>
+      <input type="number" class="form-control" formControlName='amount'
+        [ngClass]="{ 'is-invalid': isInvalid(ctrls.amount) }">
+      <div *ngIf="isInvalid(ctrls.amount)" class="invalid-feedback">
+        {{getErrorMessage(ctrls.amount)}}
+      </div>
+    </div>
+  </form>
+  <button type="button" class="btn btn-outline-primary" (click)="ok()" [disabled]="form.invalid">{{btnTxt}}
+  </button>
+  <button *ngIf="this.btnTxt === 'TRANSFER'" type="button" class="btn btn-outline-primary" (click)="cancel()" [disabled]="form.invalid">CANCEL
+  </button>
+</div>
+
+<div>
+  <ng-container *ngIf="transactionList.length > 0">
+    <div class="form-group">
+      <div class="col-md-6">
+        <input type="text" [(ngModel)]="searchText" class="form-control" placeholder="Search by typing" />
+      </div>
+    </div>
+    <button (click)="sort('date')" type="button">DATE</button>
+    <button (click)="sort('beneficiary')" type="button">BENEFICIARY</button>
+    <button (click)="sort('amount')" type="button">AMOUNT</button>
+    <table class="table table-striped table-sm">
+      <tbody>
+        <tr *ngFor="let item of transactionList | textFilter:searchText">
+          <td style="width:5px" [ngStyle]="{'background-color': item.categoryCode }">
+          </td>
+          <td>
+            {{item.dates.valueDate  | date:'MMM dd'}}
+          </td>
+          <td class="container ">
+            <img src="../../../assets/icons/{{ item.merchant.name.toLowerCase().split(' ').join('-') }}.png" />
+
+          </td>
+          <td>
+            {{item.merchant.name}}
+          </td>
+          <td>
+            <span
+              *ngIf="item.transaction.creditDebitIndicator !== 'CRDT'">-</span>${{item.transaction.amountCurrency.amount}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>

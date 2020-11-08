@@ -1,8 +1,29 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { Item } from '../../models/transaction';
 import { TransactionsService } from '../../services/transactions.service';
+
+declare interface ItemVM {
+  fromAccount: string;
+  toAccount: string;
+  amount: string;
+}
+
+declare class MyFormDataStructure {
+  fields: ItemVM;
+  controls: {
+    fromAccount: AbstractControl;
+    toAccount: AbstractControl;
+    amount: AbstractControl;
+  };
+}
+
+declare interface MyForm extends FormGroup {
+  value: MyFormDataStructure['fields'];
+  controls: MyFormDataStructure['controls'];
+}
+
 
 @Component({
   selector: 'app-transactions',
@@ -16,34 +37,53 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   transactionList$: Observable<Item[]>;
   listSubscription = new Subscription();
 
+  form: MyForm;
+  fromAccountTxt = 'Free Checking(4692) - $';
+
   searchText = '';
+  btnTxt = 'SUBMIT';
+  limit = 500;
+  maxQt: number;
+
+  balance = 0;
 
   isDesc = false;
   column = 'Date';
 
 
-  constructor(private transactionService: TransactionsService) { }
+  constructor(private transactionService: TransactionsService, private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    // this.searchText.setValue('t');
+    this.form = this.formBuilder.group({
+      fromAccount: [this.fromAccountTxt, Validators.required],
+      toAccount: ['', Validators.required],
+      amount: ['', [Validators.required]],
+    }) as MyForm;
+
     this.getList();
+  }
+
+  // tslint:disable-next-line: typedef
+  get ctrls() {
+    return this.form.controls;
+  }
+
+  isInvalid(ctrl: AbstractControl): boolean {
+    return (ctrl.touched && ctrl.invalid);
+  }
+
+  getErrorMessage(fc: FormControl): string {
+    let resp = '';
+    resp += fc.hasError('required') ? 'Debe ingresar un valor. ' : '';
+    resp += fc.hasError('minlength') ? 'Debe ingresar mínimo 6 dígitos. ' : '';
+    resp += fc.hasError('equalValidator') ? 'Los valores no coinciden ' : '';
+    resp += fc.hasError('max') ? 'You cannot overdraft your account beyond a balance of $ -' + this.limit : '';
+    return resp;
   }
 
   ngOnDestroy(): void {
     this.listSubscription.unsubscribe();
   }
-
-  /*getList(): void {
-    this.loading = true;
-    this.listSubscription = this.transactionService.getItems().subscribe(result => {
-      this.loading = false;
-      this.transactionList = result;
-      this.transactionList$ = this.textFilter.valueChanges.pipe(
-        startWith(''),
-        map(text => this.searchText(text))
-      );
-    });
-  }*/
 
   getList(): void {
     this.transactionService.getItems().subscribe(result => {
@@ -53,8 +93,23 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       console.log('mes:', date.toDateString());
       console.log('mes:', date.getMonth() + 1);
       console.log('mes:', date.getDate());
-
+      this.getInitialBalance();
+      this.ctrls.fromAccount.setValue(this.fromAccountTxt + this.balance.toString());
+      this.maxQt = this.balance - this.limit;
+      this.ctrls.amount.setValidators([Validators.max(this.maxQt)]);
+      console.log('maximo establecido:', this.maxQt);
     });
+  }
+
+  getInitialBalance(): void {
+    this.transactionList.forEach(item => {
+      if (item.transaction.creditDebitIndicator === 'CRDT') {
+        this.balance = this.balance + (+item.transaction.amountCurrency.amount);
+      } else {
+        this.balance = this.balance - (+item.transaction.amountCurrency.amount);
+      }
+    });
+    console.log('balance inicial: ', this.balance);
   }
 
   sort(property: string): void {
@@ -102,6 +157,18 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         return 0;
       }
     });
+  }
+
+  ok(): void {
+    if (this.btnTxt === 'SUBMIT') {
+      this.btnTxt = 'TRANSFER';
+    } else {
+      this.btnTxt = 'SUBMIT';
+    }
+  }
+
+  cancel(): void {
+    this.btnTxt = 'SUBMIT';
   }
 
 }
