@@ -69,7 +69,32 @@ input#search {
   width: inherit;
   display: inline-block;
 }
-  //----
+
+.btn-form {
+  background-color: orange;
+  border: none;
+  color: white;
+  padding: 7px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+table{
+  border-collapse:collapse;
+  border:1px solid gray;
+  }
+
+table td{
+
+  padding:5px 20px 0px 20px; /* top right bottom left */
+
+  }
+
+  table td{
+    border-bottom:1px solid gray;
+    }  //----
 
 .container {
   width: 30px;

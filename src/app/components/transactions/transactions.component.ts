@@ -55,7 +55,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
-      fromAccount: [{ value: this.fromAccountTxt/*, disabled: true*/ }],
+      fromAccount: [{ value: this.fromAccountTxt, disabled: true }],
       toAccount: ['', Validators.required],
       amount: ['', [Validators.required]],
     }) as MyForm;
@@ -74,9 +74,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
   getErrorMessage(fc: FormControl): string {
     let resp = '';
-    resp += fc.hasError('required') ? 'Debe ingresar un valor. ' : '';
-    resp += fc.hasError('minlength') ? 'Debe ingresar mínimo 6 dígitos. ' : '';
-    resp += fc.hasError('equalValidator') ? 'Los valores no coinciden ' : '';
+    resp += fc.hasError('required') ? 'This is a required field. ' : '';
     resp += fc.hasError('max') ? 'You cannot overdraft your account beyond a balance of $ -' + this.limit : '';
     return resp;
   }
@@ -88,16 +86,11 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   getList(): void {
     this.transactionService.getItems().subscribe(result => {
       this.transactionList = result;
-      console.log('transacciones:', this.transactionList);
       const date = new Date(this.transactionList[0].dates.valueDate);
-      console.log('mes:', date.toDateString());
-      console.log('mes:', date.getMonth() + 1);
-      console.log('mes:', date.getDate());
       this.getInitialBalance();
       this.ctrls.fromAccount.setValue(this.fromAccountTxt + this.balance.toString());
       this.maxQt = this.balance + this.limit;
       this.ctrls.amount.setValidators([Validators.max(this.maxQt)]);
-      console.log('maximo establecido:', this.maxQt);
     });
   }
 
@@ -110,7 +103,10 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       }
     });
     this.balance = +(this.balance.toFixed(2));
-    console.log('balance inicial: ', this.balance);
+  }
+
+  clearField(): void {
+    this.searchText = '';
   }
 
   sort(property: string): void {
@@ -121,16 +117,9 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     const direction = this.isDesc ? 1 : -1;
 
     this.transactionList.sort((a, b) => {
-      console.log('la Propieddad:', property);
-      console.log('la a:', a);
-      console.log('propiedad:', a['merchant.name']);
 
       switch (property) {
         case 'date':
-          console.log('fecha1', new Date(a.dates.valueDate));
-          console.log('fecha1', (a.dates.valueDate));
-          console.log('fecha2', new Date(b.dates.valueDate));
-          console.log('fecha2', (b.dates.valueDate));
           previous = new Date(a.dates.valueDate) < new Date(b.dates.valueDate);
           next = new Date(a.dates.valueDate) > new Date(b.dates.valueDate);
           break;
@@ -176,7 +165,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     newTransf.transaction.amountCurrency.currencyCode = 'EUR';
     newTransf.transaction.creditDebitIndicator = 'DBIT';
 
-    this.transactionList.push(newTransf);
+    this.transactionList.unshift(newTransf);
 
     this.balance = this.balance - this.ctrls.amount.value;
     this.balance =  +(this.balance.toFixed(2));
