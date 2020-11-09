@@ -32,9 +32,8 @@ declare interface MyForm extends FormGroup {
 })
 export class TransactionsComponent implements OnInit, OnDestroy {
 
-  loading: boolean;
   transactionList = {} as Item[];
-  transactionList$: Observable<Item[]>;
+
   listSubscription = new Subscription();
 
   form: MyForm;

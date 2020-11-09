@@ -10,9 +10,6 @@ import { map, switchMap } from 'rxjs/operators';
 export class TransactionsService {
 
   constructor(private http: HttpClient) {
-    /*this.getItems().subscribe(data => {
-      console.log(data);
-    });*/
   }
 
   public getItems(): Observable<any> {
